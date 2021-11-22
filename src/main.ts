@@ -1,5 +1,6 @@
-import {vec3} from 'gl-matrix';
-import * as Stats from 'stats-js';
+import {mat4, vec3} from 'gl-matrix';
+// import * as Stats from 'stats-js';
+const Stats = require('stats-js');
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
 import ScreenQuad from './geometry/ScreenQuad';

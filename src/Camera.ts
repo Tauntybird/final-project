@@ -22,6 +22,7 @@ class Camera {
     this.controls = CameraControls(canvas, {
       position: position,
       center: target,
+      eye: position,
     });
 
     vec3.add(this.target, this.position, this.direction);

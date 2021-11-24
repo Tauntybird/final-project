@@ -7,6 +7,7 @@ class Square extends Drawable {
   positions: Float32Array;
   colors: Float32Array;
   offsets: Float32Array; // Data for bufTranslate
+  uvs: Float32Array;
 
 
   constructor() {
@@ -22,6 +23,11 @@ class Square extends Drawable {
                                      0.5, 0.5, 0, 1,
                                      -0.5, 0.5, 0, 1]);
 
+  this.colors = new Float32Array([1., 1., 1., 1.,
+                                  1., 1., 1., 1.,
+                                  1., 1., 1., 1.,
+                                  1., 1., 1., 1.,]);
+
     this.generateIdx();
     this.generatePos();
     this.generateCol();
@@ -34,15 +40,30 @@ class Square extends Drawable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufPos);
     gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.STATIC_DRAW);
 
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+
     console.log(`Created square`);
   }
 
-  setInstanceVBOs(offsets: Float32Array, colors: Float32Array) {
-    this.colors = colors;
+  createWithUVs(uvCoords: Float32Array) {
+    this.create();
+    
+    this.uvs = uvCoords;
+    this.generateUV();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufUV);
+    gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW);
+
+    console.log(`Created square uvs`);
+  }
+
+  // setInstanceVBOs(offsets: Float32Array, colors: Float32Array) {
+    setInstanceVBOs(offsets: Float32Array) {
+    // this.colors = colors;
     this.offsets = offsets;
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
-    gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
+    // gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTranslate);
     gl.bufferData(gl.ARRAY_BUFFER, this.offsets, gl.STATIC_DRAW);
   }

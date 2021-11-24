@@ -14,16 +14,24 @@ in vec2 vs_UV; // Non-instanced, and presently unused in main(). Feel free to us
 
 out vec4 fs_Col;
 out vec4 fs_Pos;
+out vec2 fs_UV;
 
 void main()
 {
-    fs_Col = vs_Col;
-    fs_Pos = vs_Pos;
+    // fs_Col = vs_Col;
+    // fs_Col = vs_Col; //uncomment for color
+    // fs_Pos = vs_Pos; //comment out for no blur
+    // fs_Pos = vs_Pos + vs_Translate;
+    
+    // gl_Position = u_ViewProj * vec4(vs_Pos, 1.0);
 
-    vec3 offset = vs_Translate;
-    offset.z = (sin((u_Time + offset.x) * 3.14159 * 0.1) + cos((u_Time + offset.y) * 3.14159 * 0.1)) * 1.5;
+    // vec3 offset = vs_Translate;
+    //offset.z = (sin((u_Time + offset.x) * 3.14159 * 0.1) + cos((u_Time + offset.y) * 3.14159 * 0.1)) * 1.5;
 
-    vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];
+    // vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];
 
-    gl_Position = u_ViewProj * vec4(billboardPos, 1.0);
+    // gl_Position = u_ViewProj * vec4(billboardPos, 1.0);
+    gl_Position = u_ViewProj * vec4(vec3(vs_Pos) + vs_Translate, 1.);
+    //fs_UV = vec2(vs_UV.x, 1. - vs_UV.y);
+    fs_UV = vs_UV;
 }

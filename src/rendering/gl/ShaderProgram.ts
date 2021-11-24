@@ -36,6 +36,7 @@ class ShaderProgram {
   unifEye: WebGLUniformLocation;
   unifUp: WebGLUniformLocation;
   unifDimensions: WebGLUniformLocation;
+  unifSampler: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -60,6 +61,7 @@ class ShaderProgram {
     this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
     this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
     this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
+    this.unifSampler   = gl.getUniformLocation(this.prog, "u_Sampler");
   }
 
   use() {
@@ -86,6 +88,13 @@ class ShaderProgram {
     this.use();
     if(this.unifDimensions !== -1) {
       gl.uniform2f(this.unifDimensions, width, height);
+    }
+  }
+
+  setSampler() {
+    this.use();
+    if(this.unifSampler !== -1) {
+      gl.uniform1i(this.unifSampler, 0);
     }
   }
 
@@ -142,7 +151,7 @@ class ShaderProgram {
     if (this.attrCol != -1 && d.bindCol()) {
       gl.enableVertexAttribArray(this.attrCol);
       gl.vertexAttribPointer(this.attrCol, 4, gl.FLOAT, false, 0, 0);
-      gl.vertexAttribDivisor(this.attrCol, 1); // Advance 1 index in col VBO for each drawn instance
+      gl.vertexAttribDivisor(this.attrCol, 0); // Advance 1 index in col VBO for each drawn instance //jk no instancing so 0
     }
 
     if (this.attrTranslate != -1 && d.bindTranslate()) {

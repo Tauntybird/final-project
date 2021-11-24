@@ -15,7 +15,7 @@ function pollRandomPoint(botLeft: number[], topRight: number[]) : number[] {
 
 class BSPNode {
   leaf: boolean = false;
-//   room: boolean = false;
+  room: boolean = false;
   botLeftCoord: number[] = [0, 0];
   topRightCoord: number[] = [0, 0];
   width: number = 0;
@@ -25,6 +25,7 @@ class BSPNode {
   widthRoom: number = 0;
   heightRoom: number = 0;
   children: BSPNode[] = [];
+//   allChildren: BSPNode[] = [];
 //   childHasRoom: boolean = false;
 
   constructor(botLeftCd: number[], topRightCd: number[], maxRoomWidth: number,  maxRoomHeight: number) {
@@ -32,6 +33,13 @@ class BSPNode {
       this.topRightCoord = topRightCd;
       this.width = topRightCd[0] - botLeftCd[0];
       this.height = topRightCd[1] - botLeftCd[1];
+
+      if (maxRoomWidth <= 0 && maxRoomHeight <= 0) {
+        this.room = true;
+        this.botLeftCoordRoom = this.botLeftCoord;
+        this.topRightCoordRoom = this.topRightCoord;
+          return;
+      }
       
     //   if (this.width <= maxRoomWidth || this.height <= maxRoomHeight || Math.random() < .1) {
       if (this.width <= maxRoomWidth || this.height <= maxRoomHeight) {
@@ -40,6 +48,7 @@ class BSPNode {
             //   this.room = true;
         //   }
           this.leaf = true;
+          this.room = true;
           this.widthRoom = Math.floor(Math.random() * this.width / 2. + this.width / 2.);
           this.heightRoom = Math.floor(Math.random() * this.height / 2. + this.height / 2.);
         //    this.widthRoom = this.width - 2.;
@@ -55,12 +64,97 @@ class BSPNode {
       return this.leaf;
   }
 
-//   drawRoom() {
-//       return this.room;
-//   }
+  isRoom() {
+      return this.room;
+  }
 
   addChild(child : BSPNode) {
       this.children.push(child);
+  }
+
+  makePaths() : [BSPNode, BSPNode] {
+    let leftChildren: BSPNode[] = [];
+    let rightChildren: BSPNode[] = [];
+    for (let i = 0; i < this.children.length; i++) {
+        let child = this.children[i];
+        if (i == 0 && child.isRoom()) leftChildren.push(child);
+        else if (child.isRoom()) rightChildren.push(child);
+        for (let j = 0; j < child.children.length; j++) {
+            if (i == 0) leftChildren.push(child.children[j]);
+            else rightChildren.push(child.children[j]);
+        }
+    }
+    // console.log("left: " + leftChildren.length);
+    // console.log("right: " + rightChildren.length);
+    let randomLeftChild: BSPNode = leftChildren[Math.floor(Math.random() * leftChildren.length)];
+    let randomRightChild: BSPNode = rightChildren[Math.floor(Math.random() * rightChildren.length)];
+
+    let randomLeftPoint: number[] = pollRandomPoint(randomLeftChild.botLeftCoordRoom, randomLeftChild.topRightCoordRoom);
+    let randomRightPoint: number[] = pollRandomPoint(randomRightChild.botLeftCoordRoom, randomRightChild.topRightCoordRoom);
+    // if (randomLeftPoint[0] == 0 || randomLeftPoint[1] == 0) {
+    //     console.log("sadness");
+    //     console.log(randomLeftChild);
+    //     console.log("left: " + randomLeftChild.botLeftCoordRoom);
+    //     console.log("right: " + randomLeftChild.topRightCoordRoom);
+    // }
+    // if (randomRightPoint[0] == 0 || randomRightPoint[1] == 0) {
+    //     console.log("sadness");
+    //     console.log(randomRightChild);
+    //     console.log("left: " + randomRightChild.botLeftCoordRoom);
+    //     console.log("right: " + randomRightChild.topRightCoordRoom);
+    // }
+
+    let horizontalFirst: boolean = Math.random() > .5; //.5
+    if (horizontalFirst && randomLeftPoint[0] > randomRightPoint[0] || !horizontalFirst && randomLeftPoint[1] > randomRightPoint[1]) {
+        let temp: number[] = randomLeftPoint;
+        randomLeftPoint = randomRightPoint;
+        randomRightPoint = temp;
+    }
+    let leftPastRight: boolean = randomLeftPoint[1] >= randomRightPoint[1]; //leftAboveRight
+    if (!horizontalFirst) leftPastRight = randomLeftPoint[0] >= randomRightPoint[0]; //leftRightofRight
+    
+    let path1botLeftCd: number[] = randomLeftPoint;
+    let path1topRightCd: number[] = [];
+    let path2botLeftCd: number[] = [];  
+    let path2topRightCd: number[] = [];
+    if (horizontalFirst) {
+        path1topRightCd = [randomRightPoint[0] + 1, randomLeftPoint[1] + 1];
+        if (leftPastRight) {
+            path2botLeftCd = randomRightPoint;
+            path2topRightCd = [randomRightPoint[0] + 1, randomLeftPoint[1] + 1];
+        }
+        else {
+            path2botLeftCd = [path1topRightCd[0] - 1, path1topRightCd[1] - 1];
+            path2topRightCd = [randomRightPoint[0] + 1, randomRightPoint[1] + 1];
+        }
+    }
+    else {
+        path1topRightCd = [randomLeftPoint[0] + 1, randomRightPoint[1] + 1];
+        if (leftPastRight) {
+            path2botLeftCd = randomRightPoint;
+            path2topRightCd = [randomLeftPoint[0] + 1, randomRightPoint[1] + 1];
+        }
+        else {
+            path2botLeftCd = [path1topRightCd[0] - 1, path1topRightCd[1] - 1];
+            path2topRightCd = [randomRightPoint[0] + 1, randomRightPoint[1] + 1];
+        }
+    }
+    // console.log("path 1 bottom left corner: " + path1botLeftCd);
+    // console.log("path 1 top right corner: " + path1topRightCd);
+    // console.log("path 2 bottom left corner: " + path2botLeftCd);
+    // console.log("path 2 top right corner: " + path2topRightCd);
+    let path1 : BSPNode = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1);
+    let path2 : BSPNode = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1);
+    this.children = [];
+    for (let i = 0; i < leftChildren.length; i++) {
+        this.children.push(leftChildren[i]);
+    }
+    for (let i = 0; i < rightChildren.length; i++) {
+        this.children.push(rightChildren[i]);
+    }
+    this.children.push(path1);
+    this.children.push(path2);
+    return [path1, path2];
   }
 
 }
@@ -141,6 +235,9 @@ export default class BSP {
     currentNode.addChild(node2);
     this.generateHelper(node1);
     this.generateHelper(node2);
+    let [path1, path2] = currentNode.makePaths();
+    this.drawRoom(path1.botLeftCoordRoom, path1.topRightCoordRoom);
+    this.drawRoom(path2.botLeftCoordRoom, path2.topRightCoordRoom);
   }
 
   getCenterCoords() : number[] {

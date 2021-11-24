@@ -31,3 +31,7 @@
 - By Milestone 2 (11/22): Figure out how to reuse past homework bases into 2d format for this generator, research generator algorithm and set up necessary classes/variables for the base logic, find/download/organize assets in a way that is easy for code to access
 - By Milestone 3 (11/29): Keep tweaking the algorithm by making it generate more complex/beautiful results, allow user input parameters to change the outcome, add more assets in for more variety if desired/able to
 - By Final Submission (12/6): Keep polishing, add NPCs and other details (items, pokemon) if you have time
+
+#### Milestone 2:
+- Added UV texturing, able to read tiles from a standardized tile sheet format. Only using two basic tiles for testing purposes this week, will prettify it next milestone.
+- Coded basic procedural generator first using BSP to generate rooms and connecting them with corridors afterwards.

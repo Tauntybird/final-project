@@ -167,7 +167,7 @@ function main() {
   let center : number[] = bsp.getCenterCoords();
 
   // const camera = new Camera(vec3.fromValues(50, 50, 10), vec3.fromValues(50, 50, 0));
-  const camera = new Camera(vec3.fromValues(center[0], center[1], 10), vec3.fromValues(center[0], center[1], 0));
+  const camera = new Camera(vec3.fromValues(center[0], center[1], 70), vec3.fromValues(center[0], center[1], 60));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);

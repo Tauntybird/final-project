@@ -100,21 +100,17 @@ function randomizeControls(gl: WebGL2RenderingContext, pretty: boolean) {
     controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth / 3.);
     controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight / 3.);
     controls.density = (Math.random() * 11 - 5 + 10) * .05;
-    let tileThemePaths = Object.values(tileThemes);
-    let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
-    controls.tilemapTheme = tileThemePaths[tileThemeInd];
-    loadScene(gl, true);
   } else {
     controls.totalDungeonWidth = Math.floor(Math.random() * 201);
     controls.totalDungeonHeight = Math.floor(Math.random() * 201);
     controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth);
     controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight);
     controls.density = Math.random() * 21 * .05;
-    let tileThemePaths = Object.keys(tileThemes).map((key: string) => tileThemes[key]);
-    let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
-    controls.tilemapTheme = tileThemePaths[tileThemeInd];
-    loadScene(gl, true);
   }
+  let tileThemePaths = Object.keys(tileThemes).map((key: string) => tileThemes[key]);
+  let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
+  controls.tilemapTheme = tileThemePaths[tileThemeInd];
+  loadScene(gl, true);
 }
 
 //

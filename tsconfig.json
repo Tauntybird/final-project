@@ -3,8 +3,8 @@
     "outDir": "./dist",
     "sourceMap": true,
     "noImplicitAny": true,
-    "module": "es2017",
-    "target": "es2017",
+    "module": "es6",
+    "target": "es6",
     "allowJs": true
   }
 }

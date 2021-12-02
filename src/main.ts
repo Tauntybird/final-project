@@ -25,48 +25,51 @@ const controls = {
   randomize: randomizeControls
 };
 
-let tileThemes = {  Amp_Plains: 'src/tilemaps/amp_plains.png',
-                    Apple_Woods: 'src/tilemaps/apple_woods.png',
-                    Beach_Cave: 'src/tilemaps/beach_cave.png',
-                    Bottomless_Sea: 'src/tilemaps/bottomless_sea.png',
-                    Brine_Cave: 'src/tilemaps/brine_cave.png',
-                    Brine_Cave_2: 'src/tilemaps/brine_cave_2.png',
-                    Concealed_Ruins: 'src/tilemaps/concealed_ruins.png',
-                    Craggy_Coast: 'src/tilemaps/craggy_coast.png',
-                    Crystal_Cave: 'src/tilemaps/crystal_cave.png',
-                    Crystal_Cave_2: 'src/tilemaps/crystal_cave_2.png',
-                    Crystal_Cave_3: 'src/tilemaps/crystal_cave_3.png',
-                    Crystal_Crossing: 'src/tilemaps/crystal_crossing.png',
-                    Dark_Crater: 'src/tilemaps/dark_crater.png',
-                    Dark_Hill: 'src/tilemaps/dark_hill.png',
-                    Foggy_Forest: 'src/tilemaps/foggy_forest.png',
-                    Forest_Path: 'src/tilemaps/forest_path.png',
-                    Golden_Chamber: 'src/tilemaps/golden_chamber.png',
-                    Hidden_Highland: 'src/tilemaps/hidden_highland.png',
-                    Hidden_Land: 'src/tilemaps/hidden_land.png',
-                    Hidden_Land_2: 'src/tilemaps/hidden_land_2.png',
-                    Ice_Aegis_Cave: 'src/tilemaps/ice_aegis_cave.png',
-                    Lower_Brine_Cave: 'src/tilemaps/lower_brine_cave.png',
-                    Lush_Prairie: 'src/tilemaps/lush_prairie.png',
-                    Miracle_Sea: 'src/tilemaps/miracle_sea.png',
-                    Mt_Bristle: 'src/tilemaps/mt_bristle.png',
-                    Mt_Horn: 'src/tilemaps/mt_horn.png',
-                    Mt_Travail: 'src/tilemaps/mt_travail.png',
-                    Mystery_Jungle: 'src/tilemaps/mystery_jungle.png',
-                    Sealed_Ruin_2: 'src/tilemaps/sealed_ruin_2.png',
-                    Shimmer_Desert: 'src/tilemaps/shimmer_desert.png',
-                    Side_Path: 'src/tilemaps/side_path.png',
-                    Spacial_Rift: 'src/tilemaps/spacial_rift.png',
-                    Spacial_Rift_2: 'src/tilemaps/spacial_rift_2.png',
-                    Steam_Cave: 'src/tilemaps/steam_cave.png',
-                    Steam_Cave_2: 'src/tilemaps/steam_cave_2.png',
-                    Steel_Aegis_Cave: 'src/tilemaps/steel_aegis_cave.png',
-                    Surrounded_Sea: 'src/tilemaps/surrounded_sea.png',
-                    Temporal_Spire: 'src/tilemaps/temporal_spire.png',
-                    Temporal_Tower: 'src/tilemaps/temporal_tower.png',
-                    Temporal_Tower_2: 'src/tilemaps/temporal_tower_2.png',
-                    Test_Dungeon: 'src/tilemaps/test_dungeon.png',
-                    The_Nightmare: 'src/tilemaps/the_nightmare.png'
+interface MyMap {
+  [key: string]: string | undefined
+}
+let tileThemes: MyMap = {   Amp_Plains: 'src/tilemaps/amp_plains.png',
+                            Apple_Woods: 'src/tilemaps/apple_woods.png',
+                            Beach_Cave: 'src/tilemaps/beach_cave.png',
+                            Bottomless_Sea: 'src/tilemaps/bottomless_sea.png',
+                            Brine_Cave: 'src/tilemaps/brine_cave.png',
+                            Brine_Cave_2: 'src/tilemaps/brine_cave_2.png',
+                            Concealed_Ruins: 'src/tilemaps/concealed_ruins.png',
+                            Craggy_Coast: 'src/tilemaps/craggy_coast.png',
+                            Crystal_Cave: 'src/tilemaps/crystal_cave.png',
+                            Crystal_Cave_2: 'src/tilemaps/crystal_cave_2.png',
+                            Crystal_Cave_3: 'src/tilemaps/crystal_cave_3.png',
+                            Crystal_Crossing: 'src/tilemaps/crystal_crossing.png',
+                            Dark_Crater: 'src/tilemaps/dark_crater.png',
+                            Dark_Hill: 'src/tilemaps/dark_hill.png',
+                            Foggy_Forest: 'src/tilemaps/foggy_forest.png',
+                            Forest_Path: 'src/tilemaps/forest_path.png',
+                            Golden_Chamber: 'src/tilemaps/golden_chamber.png',
+                            Hidden_Highland: 'src/tilemaps/hidden_highland.png',
+                            Hidden_Land: 'src/tilemaps/hidden_land.png',
+                            Hidden_Land_2: 'src/tilemaps/hidden_land_2.png',
+                            Ice_Aegis_Cave: 'src/tilemaps/ice_aegis_cave.png',
+                            Lower_Brine_Cave: 'src/tilemaps/lower_brine_cave.png',
+                            Lush_Prairie: 'src/tilemaps/lush_prairie.png',
+                            Miracle_Sea: 'src/tilemaps/miracle_sea.png',
+                            Mt_Bristle: 'src/tilemaps/mt_bristle.png',
+                            Mt_Horn: 'src/tilemaps/mt_horn.png',
+                            Mt_Travail: 'src/tilemaps/mt_travail.png',
+                            Mystery_Jungle: 'src/tilemaps/mystery_jungle.png',
+                            Sealed_Ruin_2: 'src/tilemaps/sealed_ruin_2.png',
+                            Shimmer_Desert: 'src/tilemaps/shimmer_desert.png',
+                            Side_Path: 'src/tilemaps/side_path.png',
+                            Spacial_Rift: 'src/tilemaps/spacial_rift.png',
+                            Spacial_Rift_2: 'src/tilemaps/spacial_rift_2.png',
+                            Steam_Cave: 'src/tilemaps/steam_cave.png',
+                            Steam_Cave_2: 'src/tilemaps/steam_cave_2.png',
+                            Steel_Aegis_Cave: 'src/tilemaps/steel_aegis_cave.png',
+                            Surrounded_Sea: 'src/tilemaps/surrounded_sea.png',
+                            Temporal_Spire: 'src/tilemaps/temporal_spire.png',
+                            Temporal_Tower: 'src/tilemaps/temporal_tower.png',
+                            Temporal_Tower_2: 'src/tilemaps/temporal_tower_2.png',
+                            Test_Dungeon: 'src/tilemaps/test_dungeon.png',
+                            The_Nightmare: 'src/tilemaps/the_nightmare.png'
 };
 
 // let square: Square;
@@ -107,7 +110,7 @@ function randomizeControls(gl: WebGL2RenderingContext, pretty: boolean) {
     controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth);
     controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight);
     controls.density = Math.random() * 21 * .05;
-    let tileThemePaths = Object.values(tileThemes);
+    let tileThemePaths = Object.keys(tileThemes).map((key: string) => tileThemes[key]);
     let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
     controls.tilemapTheme = tileThemePaths[tileThemeInd];
     loadScene(gl, true);

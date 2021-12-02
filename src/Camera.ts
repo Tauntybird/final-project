@@ -24,6 +24,7 @@ class Camera {
       center: target,
       eye: position,
     });
+    this.controls.rotateSpeed = 0;
 
     vec3.add(this.target, this.position, this.direction);
     mat4.lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);

@@ -25,14 +25,16 @@ class BSPNode {
   widthRoom: number = 0;
   heightRoom: number = 0;
   children: BSPNode[] = [];
+  density: number = 0;
 //   allChildren: BSPNode[] = [];
 //   childHasRoom: boolean = false;
 
-  constructor(botLeftCd: number[], topRightCd: number[], maxRoomWidth: number,  maxRoomHeight: number) {
+  constructor(botLeftCd: number[], topRightCd: number[], maxRoomWidth: number,  maxRoomHeight: number, density: number) {
       this.botLeftCoord = botLeftCd;
       this.topRightCoord = topRightCd;
       this.width = topRightCd[0] - botLeftCd[0];
       this.height = topRightCd[1] - botLeftCd[1];
+      this.density = density;
 
       if (maxRoomWidth <= 0 && maxRoomHeight <= 0) {
         this.room = true;
@@ -49,8 +51,8 @@ class BSPNode {
         //   }
           this.leaf = true;
           this.room = true;
-          this.widthRoom = Math.floor(Math.random() * this.width / 2. + this.width / 2.);
-          this.heightRoom = Math.floor(Math.random() * this.height / 2. + this.height / 2.);
+          this.widthRoom = Math.floor(Math.random() * this.width * (1. - density) + this.width * density);
+          this.heightRoom = Math.floor(Math.random() * this.height * (1. - density) + this.height * density);
         //    this.widthRoom = this.width - 2.;
         //   this.heightRoom = this.height - 2.;
           let widthLeftover : number = this.width - this.widthRoom;
@@ -143,8 +145,8 @@ class BSPNode {
     // console.log("path 1 top right corner: " + path1topRightCd);
     // console.log("path 2 bottom left corner: " + path2botLeftCd);
     // console.log("path 2 top right corner: " + path2topRightCd);
-    let path1 : BSPNode = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1);
-    let path2 : BSPNode = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1);
+    let path1 : BSPNode = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1, this.density);
+    let path2 : BSPNode = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1, this.density);
     this.children = [];
     for (let i = 0; i < leftChildren.length; i++) {
         this.children.push(leftChildren[i]);
@@ -164,6 +166,7 @@ export default class BSP {
   mapHeight: number = 1;
   maxRoomWidth: number = 1;
   maxRoomHeight: number = 1;
+  density: number = 2;
   botLeftCoord: number[] = [0, 0];
   topRightCoord: number[] = [0, 0];
   root: BSPNode;
@@ -171,12 +174,13 @@ export default class BSP {
   //0 = wall, 1 = ground
   map: number[][] = [];
 
-  constructor(mapW: number, mapH: number, maxRoomW: number, maxRoomH: number) {
+  constructor(mapW: number, mapH: number, maxRoomW: number, maxRoomH: number, density: number) {
     this.mapWidth = mapW;
     this.mapHeight = mapH;
     this.maxRoomWidth = maxRoomW;
     this.maxRoomHeight = maxRoomH;
     this.topRightCoord = [this.mapWidth, this.mapHeight];
+    this.density = density;
     this.resetMap();
   }
 
@@ -200,7 +204,7 @@ export default class BSP {
   }
 
   generate() {
-    this.root = new BSPNode([this.botLeftCoord[0] + 1, this.botLeftCoord[1] + 1], [this.topRightCoord[0] - 1, this.topRightCoord[1] - 1], this.maxRoomWidth - 2, this.maxRoomHeight - 2);
+    this.root = new BSPNode([this.botLeftCoord[0] + 1, this.botLeftCoord[1] + 1], [this.topRightCoord[0] - 1, this.topRightCoord[1] - 1], this.maxRoomWidth - 2, this.maxRoomHeight - 2, this.density);
     this.generateHelper(this.root); 
   }
 
@@ -229,8 +233,8 @@ export default class BSP {
         topRightCoord1[1] = centerCoord[1] + offset;
         botLeftCoord2[1] = centerCoord[1] + offset;
     }
-    let node1 : BSPNode = new BSPNode(botLeftCoord1, topRightCoord1, this.maxRoomWidth, this.maxRoomHeight);
-    let node2 : BSPNode = new BSPNode(botLeftCoord2, topRightCoord2, this.maxRoomWidth, this.maxRoomHeight);
+    let node1 : BSPNode = new BSPNode(botLeftCoord1, topRightCoord1, this.maxRoomWidth, this.maxRoomHeight, this.density);
+    let node2 : BSPNode = new BSPNode(botLeftCoord2, topRightCoord2, this.maxRoomWidth, this.maxRoomHeight, this.density);
     currentNode.addChild(node1);
     currentNode.addChild(node2);
     this.generateHelper(node1);
@@ -268,6 +272,10 @@ export default class BSP {
     }
   
     return [offsetsArrayGround, numGround, offsetsArrayWall, numWall];
+  }
+
+  getMap() : number[][] {
+      return this.map;
   }
 
 }

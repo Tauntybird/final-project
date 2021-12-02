@@ -6019,13 +6019,36 @@ const Stats = __webpack_require__(26);
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
-const controls = {};
+const controls = {
+    totalDungeonWidth: 100,
+    totalDungeonHeight: 75,
+    maxRoomWidth: 25,
+    maxRoomHeight: 25,
+    maxCorridorWidth: 10,
+    maxCorridorHeight: 10,
+    density: .5,
+    tilemapTheme: 'src/tilemaps/pokemon-tilemap-amp-plains.png',
+    generate: loadScene
+};
 // let square: Square;
 let wall;
 let ground;
 let screenQuad;
 let time = 0.0;
 let bsp;
+//map from tile 3x3 string to tile Number
+let layoutToNumber;
+//map from tile Number to tile UVCoords
+let numberToCoords;
+//map from tile UVCoords to tile Square
+let coordsToSquare;
+//map tilemap Name to tilemap Filepath
+//TODO? or in controls
+let usedSquares;
+let priorityTiles = [2, 4, 6, 8,
+    1, 3, 7, 9,
+    10, 11, 12, 13, 14, 15, 16,
+    17, 18, 19, 20, 21,]; //thin walls
 //
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
@@ -6093,33 +6116,287 @@ function convertToUvCoords(row, col) {
     //                                   widthTileUnit + 0.0,  heightTileUnit + 0.0]);
     return uvCoords;
 }
-function loadScene(gl) {
-    const texture = loadTexture(gl, 'src/tilemaps/pokemon-tilemap-amp-plains.png');
+function invertLayout(str) {
+    let result = "";
+    for (let i = 0; i < str.length; i++) {
+        if (str[i] == '0')
+            result += '1';
+        else
+            result += '0';
+    }
+    return result;
+}
+function loadTileBasicMaps() {
+    //map from tile 3x3 string to tile Number
+    layoutToNumber = new Map([
+        ["111100100", 1],
+        ["111000000", 2],
+        ["111001001", 3],
+        ["100100100", 4],
+        ["000000000", 5],
+        ["001001001", 6],
+        ["100100111", 7],
+        ["000000111", 8],
+        ["001001111", 9],
+        ["111100101", 10],
+        ["111000111", 11],
+        ["111001101", 12],
+        ["101101101", 13],
+        ["111101111", 14],
+        ["101100111", 15],
+        ["101001111", 16],
+        ["111101101", 17],
+        ["111100111", 18],
+        ["101000101", 19],
+        ["111001111", 20],
+        ["101101111", 21],
+        ["111000101", 22],
+        ["101100101", 23],
+        ["101001101", 24],
+        ["101000111", 25],
+        ["000000101", 26],
+        ["001000001", 27],
+        ["100000100", 28],
+        ["101000000", 29],
+        ["000000001", 30],
+        ["000000100", 31],
+        ["001000000", 32],
+        ["100000000", 33],
+        ["100100101", 34],
+        ["001001101", 35],
+        ["101100100", 36],
+        ["101001001", 37],
+        ["111000001", 38],
+        ["111000100", 39],
+        ["001000111", 40],
+        ["100000111", 41],
+        ["101000100", 42],
+        ["101000001", 43],
+        ["100000101", 44],
+        ["001000101", 45],
+        ["100000001", 46],
+        ["001000100", 47],
+        //extra cases
+        ["100000110", 8],
+        ["110000100", 2],
+        ["001000011", 8],
+        ["011000001", 2],
+        ["000100101", 4],
+        ["000001101", 6],
+        ["101100000", 4],
+        ["101001000", 6],
+        ["010000000", 2],
+        ["000100000", 4],
+        ["000001000", 6],
+        ["000000010", 8],
+        ["110000110", 11],
+        ["000101101", 13],
+        ["001000011", 11],
+        ["101101000", 13],
+        ["011000000", 2],
+        ["110000000", 2],
+        ["100100000", 4],
+        ["000100100", 4],
+        ["001001000", 6],
+        ["000001001", 6],
+        ["000000011", 8],
+        ["000000110", 8],
+        ["110100100", 1],
+        ["111100000", 1],
+        ["011001001", 3],
+        ["111001000", 3],
+        ["100100110", 7],
+        ["000100111", 7],
+        ["001001011", 9],
+        ["000001111", 9],
+    ]);
+    for (let key of layoutToNumber.keys()) {
+        let invertedKey = invertLayout(key); //(' ' + key).slice(1)
+        if (layoutToNumber.has(invertedKey))
+            continue;
+        layoutToNumber.set(invertedKey, Number(layoutToNumber.get(key) + 47));
+    }
+    //map from tile Number to tile UVCoords
+    numberToCoords = new Map([
+        [1, [0, 0]],
+        [2, [0, 1]],
+        [3, [0, 2]],
+        [4, [1, 0]],
+        [5, [1, 1]],
+        [6, [1, 2]],
+        [7, [2, 0]],
+        [8, [2, 1]],
+        [9, [2, 2]],
+        [10, [3, 0]],
+        [11, [3, 1]],
+        [12, [3, 2]],
+        [13, [4, 0]],
+        [14, [4, 1]],
+        [15, [5, 0]],
+        [16, [5, 2]],
+        [17, [6, 1]],
+        [18, [7, 0]],
+        [19, [7, 1]],
+        [20, [7, 2]],
+        [21, [8, 1]],
+        [22, [9, 1]],
+        [23, [10, 0]],
+        [24, [10, 2]],
+        [25, [11, 1]],
+        [26, [12, 1]],
+        [27, [13, 0]],
+        [28, [13, 2]],
+        [29, [14, 1]],
+        [30, [15, 0]],
+        [31, [15, 1]],
+        [32, [16, 0]],
+        [33, [16, 1]],
+        [34, [17, 0]],
+        [35, [17, 1]],
+        [36, [18, 0]],
+        [37, [18, 1]],
+        [38, [19, 0]],
+        [39, [19, 1]],
+        [40, [20, 0]],
+        [41, [20, 1]],
+        [42, [21, 0]],
+        [43, [21, 1]],
+        [44, [22, 0]],
+        [45, [22, 1]],
+        [46, [23, 0]],
+        [47, [23, 1]],
+    ]);
+    for (let i = 1; i <= 47; i++) {
+        let oldCoords = numberToCoords.get(i);
+        let newCoords = [oldCoords[0], oldCoords[1] + 3];
+        numberToCoords.set(i + 47, newCoords);
+    }
+}
+function updateTileMap() {
+    //map from tile UVCoords to tile Square
+    coordsToSquare = new Map();
+    for (let key of numberToCoords.keys()) {
+        let origCoords = numberToCoords.get(key);
+        let UVCoords = convertToUvCoords(origCoords[0], origCoords[1]);
+        let newSquare = new __WEBPACK_IMPORTED_MODULE_2__geometry_Square__["a" /* default */]();
+        newSquare.createWithUVs(UVCoords);
+        coordsToSquare.set(origCoords, newSquare);
+    }
+}
+function findLayoutDifference(layout1, layout2) {
+    let count = 0;
+    for (let i = 0; i < layout1.length; i++) {
+        if (layout1[i] != layout2[i])
+            count++;
+    }
+    return count;
+}
+function findClosestTile(layout) {
+    // let curInd : number = priorityTiles.indexOf(layoutToNumber.get(layout));
+    let lowDiff = 10;
+    let tileNumber = -1;
+    let curInd = -2;
+    for (let key of layoutToNumber.keys()) {
+        let keyInd = priorityTiles.indexOf(layoutToNumber.get(key));
+        if (key[4] != layout[4])
+            continue;
+        let diff = findLayoutDifference(key, layout);
+        if (diff == lowDiff) {
+            if (keyInd > curInd) {
+                lowDiff = diff;
+                tileNumber = layoutToNumber.get(key);
+                curInd = keyInd;
+            }
+        }
+        else if (diff < lowDiff) {
+            lowDiff = diff;
+            tileNumber = layoutToNumber.get(key);
+            curInd = keyInd;
+        }
+    }
+    return tileNumber;
+}
+function loadScene(gl, makeNewScene) {
+    const texture = loadTexture(gl, controls.tilemapTheme); //'src/tilemaps/pokemon-tilemap-amp-plains.png');
+    updateTileMap();
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     // Bind the texture to texture unit 0
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.enable(gl.LINEAR);
+    // gl.enable(gl.LINEAR); //dont think this works
     // // Tell the shader we bound the texture to texture unit 0
     // gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
     // let uvCoords = convertToUvCoords(23, 6);
-    let uvCoordsWall = convertToUvCoords(1, 1); //wall
-    let uvCoordsGround = convertToUvCoords(1, 4); //ground
-    wall = new __WEBPACK_IMPORTED_MODULE_2__geometry_Square__["a" /* default */]();
-    wall.createWithUVs(uvCoordsWall);
-    ground = new __WEBPACK_IMPORTED_MODULE_2__geometry_Square__["a" /* default */]();
-    ground.createWithUVs(uvCoordsGround);
+    //START PREV VERS
+    // let uvCoordsWall = convertToUvCoords(1, 1); //wall
+    // let uvCoordsGround = convertToUvCoords(1, 4); //ground
+    // wall = new Square();
+    // wall.createWithUVs(uvCoordsWall);
+    // ground = new Square();
+    // ground.createWithUVs(uvCoordsGround);
     screenQuad = new __WEBPACK_IMPORTED_MODULE_3__geometry_ScreenQuad__["a" /* default */]();
     screenQuad.create();
-    bsp = new __WEBPACK_IMPORTED_MODULE_8__BSP__["a" /* default */](100, 75, 25, 25);
+    bsp = new __WEBPACK_IMPORTED_MODULE_8__BSP__["a" /* default */](controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomWidth, controls.maxRoomHeight, controls.density);
     bsp.generate();
-    let [offsetsArrayGround, numGround, offsetsArrayWall, numWall] = bsp.getTiles();
-    let offsetsGround = new Float32Array(offsetsArrayGround);
-    let offsetsWall = new Float32Array(offsetsArrayWall);
-    ground.setInstanceVBOs(offsetsGround);
-    ground.setNumInstances(numGround);
-    wall.setInstanceVBOs(offsetsWall);
-    wall.setNumInstances(numWall);
+    // let [offsetsArrayGround, numGround, offsetsArrayWall, numWall] = bsp.getTiles();
+    // let offsetsGround: Float32Array = new Float32Array(offsetsArrayGround);
+    // let offsetsWall: Float32Array = new Float32Array(offsetsArrayWall);
+    // ground.setInstanceVBOs(offsetsGround);
+    // ground.setNumInstances(numGround);
+    // wall.setInstanceVBOs(offsetsWall);
+    // wall.setNumInstances(numWall);
+    //END PREV VERS
+    let numberToOffsets = new Map();
+    let numberToCount = new Map();
+    let bspmap = bsp.getMap();
+    for (let i = 0; i < bspmap.length; i++) {
+        for (let j = 0; j < bspmap[0].length; j++) {
+            let layout = "";
+            for (let lj = j + 1; lj >= j - 1; lj--) {
+                for (let li = i - 1; li <= i + 1; li++) {
+                    if (li < 0 || lj < 0 || li >= bspmap.length || lj >= bspmap[i].length)
+                        layout += '0';
+                    else
+                        layout += bspmap[li][lj];
+                }
+            }
+            let numTile = layoutToNumber.get(layout);
+            // if (layout == '111000000')
+            // {
+            //   console.log(numTile);
+            // }
+            if (numTile == undefined) {
+                // console.log(numTile + " " + layout);
+                let closestTileNumber = findClosestTile(layout);
+                // layoutToNumber.set(layout, closestTileNumber);
+                numTile = closestTileNumber;
+            }
+            // if (numTile > 94) {
+            // console.log(numTile + " " + layout);
+            // console.log(layout);
+            // }
+            if (!numberToOffsets.has(numTile))
+                numberToOffsets.set(numTile, []);
+            let offsetsArray = numberToOffsets.get(numTile);
+            offsetsArray.push(i);
+            offsetsArray.push(j);
+            offsetsArray.push(0);
+            if (!numberToCount.has(numTile))
+                numberToCount.set(numTile, 0);
+            numberToCount.set(numTile, numberToCount.get(numTile) + 1);
+        }
+    }
+    usedSquares = [];
+    for (let key of numberToOffsets.keys()) {
+        if (key == undefined)
+            continue;
+        // console.log(key);
+        // console.log(numberToOffsets.get(key))
+        let sq = coordsToSquare.get(numberToCoords.get(key));
+        usedSquares.push(sq);
+        sq.setInstanceVBOs(new Float32Array(numberToOffsets.get(key)));
+        sq.setNumInstances(numberToCount.get(key));
+    }
 }
 function main() {
     // Initial display for framerate
@@ -6129,22 +6406,38 @@ function main() {
     stats.domElement.style.left = '0px';
     stats.domElement.style.top = '0px';
     document.body.appendChild(stats.domElement);
-    // Add controls to the gui
-    const gui = new __WEBPACK_IMPORTED_MODULE_1_dat_gui__["GUI"]();
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
     if (!gl) {
         alert('WebGL 2 not supported!');
     }
+    // Add controls to the gui
+    const gui = new __WEBPACK_IMPORTED_MODULE_1_dat_gui__["GUI"]();
+    gui.add(controls, 'totalDungeonWidth', 0, 200).step(1).name('Dungeon Max Width');
+    gui.add(controls, 'totalDungeonHeight', 0, 200).step(1).name('Dungeon Max Height');
+    gui.add(controls, 'maxRoomWidth', 0, 200).step(1).name('Room Max Width');
+    gui.add(controls, 'maxRoomHeight', 0, 200).step(1).name('Room Max Height');
+    gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width');
+    gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height');
+    gui.add(controls, 'density', 0, 1).step(.05).name('Room Capacity');
+    gui.add(controls, 'tilemapTheme', { Amp_Plains: 'src/tilemaps/pokemon-tilemap-amp-plains.png',
+        Apple_Woods: 'Apple',
+        Beach_Cave: 'Beach' }).name('Tile Theme');
+    // gui.add(controls, 'generate').name('Generate!');
+    gui.add({ generate: controls.generate.bind(this, gl, true) }, 'generate').name('Generate!');
     // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
     // Later, we can import `gl` from `globals.ts` to access it
     Object(__WEBPACK_IMPORTED_MODULE_6__globals__["b" /* setGL */])(gl);
+    //Initial call to set up basic tile map info
+    loadTileBasicMaps();
     // Initial call to load scene
-    loadScene(gl);
+    loadScene(gl, true); //TODO: let tilemaps be changed without changing the current scene
     let center = bsp.getCenterCoords();
     // const camera = new Camera(vec3.fromValues(50, 50, 10), vec3.fromValues(50, 50, 0));
-    const camera = new __WEBPACK_IMPORTED_MODULE_5__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(center[0], center[1], 70), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(center[0], center[1], 60));
+    const camera = new __WEBPACK_IMPORTED_MODULE_5__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(center[0], center[1], 10), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(center[0], center[1], 0));
+    // const camera = new Camera(vec3.fromValues(center[0], center[1], 70), vec3.fromValues(center[0], center[1], 60));
+    // const camera = new Camera(vec3.fromValues(center[0], center[1], 50), vec3.fromValues(center[0], center[1], 40));
     const renderer = new __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
     renderer.setClearColor(0.2, 0.2, 0.2, 1);
     // gl.enable(gl.BLEND);
@@ -6169,11 +6462,15 @@ function main() {
         gl.viewport(0, 0, window.innerWidth, window.innerHeight);
         renderer.clear();
         renderer.render(camera, flat, [screenQuad]);
-        renderer.render(camera, instancedShader, [
-            // square,
-            wall,
-            ground
-        ]);
+        //     let renderedStuff = [
+        //       // square,
+        // //      wall,
+        //   //    ground,
+        //     ];
+        //     for (let i = 0; i < usedSquares.length; i++) {
+        //       renderedStuff.push(usedSquares[i]);
+        //     }
+        renderer.render(camera, instancedShader, usedSquares); //renderedStuff);
         stats.end();
         // Tell the browser to call `tick` again whenever it renders a new frame
         requestAnimationFrame(tick);
@@ -13352,6 +13649,7 @@ class Camera {
             center: target,
             eye: position,
         });
+        this.controls.rotateSpeed = 0;
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].add(this.target, this.position, this.direction);
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
         this.position = this.controls.eye;
@@ -16634,7 +16932,7 @@ function pollRandomPoint(botLeft, topRight) {
 class BSPNode {
     //   allChildren: BSPNode[] = [];
     //   childHasRoom: boolean = false;
-    constructor(botLeftCd, topRightCd, maxRoomWidth, maxRoomHeight) {
+    constructor(botLeftCd, topRightCd, maxRoomWidth, maxRoomHeight, density) {
         this.leaf = false;
         this.room = false;
         this.botLeftCoord = [0, 0];
@@ -16646,10 +16944,12 @@ class BSPNode {
         this.widthRoom = 0;
         this.heightRoom = 0;
         this.children = [];
+        this.density = 0;
         this.botLeftCoord = botLeftCd;
         this.topRightCoord = topRightCd;
         this.width = topRightCd[0] - botLeftCd[0];
         this.height = topRightCd[1] - botLeftCd[1];
+        this.density = density;
         if (maxRoomWidth <= 0 && maxRoomHeight <= 0) {
             this.room = true;
             this.botLeftCoordRoom = this.botLeftCoord;
@@ -16664,8 +16964,8 @@ class BSPNode {
             //   }
             this.leaf = true;
             this.room = true;
-            this.widthRoom = Math.floor(Math.random() * this.width / 2. + this.width / 2.);
-            this.heightRoom = Math.floor(Math.random() * this.height / 2. + this.height / 2.);
+            this.widthRoom = Math.floor(Math.random() * this.width * (1. - density) + this.width * density);
+            this.heightRoom = Math.floor(Math.random() * this.height * (1. - density) + this.height * density);
             //    this.widthRoom = this.width - 2.;
             //   this.heightRoom = this.height - 2.;
             let widthLeftover = this.width - this.widthRoom;
@@ -16756,8 +17056,8 @@ class BSPNode {
         // console.log("path 1 top right corner: " + path1topRightCd);
         // console.log("path 2 bottom left corner: " + path2botLeftCd);
         // console.log("path 2 top right corner: " + path2topRightCd);
-        let path1 = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1);
-        let path2 = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1);
+        let path1 = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1, this.density);
+        let path2 = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1, this.density);
         this.children = [];
         for (let i = 0; i < leftChildren.length; i++) {
             this.children.push(leftChildren[i]);
@@ -16771,11 +17071,12 @@ class BSPNode {
     }
 }
 class BSP {
-    constructor(mapW, mapH, maxRoomW, maxRoomH) {
+    constructor(mapW, mapH, maxRoomW, maxRoomH, density) {
         this.mapWidth = 1;
         this.mapHeight = 1;
         this.maxRoomWidth = 1;
         this.maxRoomHeight = 1;
+        this.density = 2;
         this.botLeftCoord = [0, 0];
         this.topRightCoord = [0, 0];
         //0 = wall, 1 = ground
@@ -16785,6 +17086,7 @@ class BSP {
         this.maxRoomWidth = maxRoomW;
         this.maxRoomHeight = maxRoomH;
         this.topRightCoord = [this.mapWidth, this.mapHeight];
+        this.density = density;
         this.resetMap();
     }
     resetMap() {
@@ -16805,7 +17107,7 @@ class BSP {
         }
     }
     generate() {
-        this.root = new BSPNode([this.botLeftCoord[0] + 1, this.botLeftCoord[1] + 1], [this.topRightCoord[0] - 1, this.topRightCoord[1] - 1], this.maxRoomWidth - 2, this.maxRoomHeight - 2);
+        this.root = new BSPNode([this.botLeftCoord[0] + 1, this.botLeftCoord[1] + 1], [this.topRightCoord[0] - 1, this.topRightCoord[1] - 1], this.maxRoomWidth - 2, this.maxRoomHeight - 2, this.density);
         this.generateHelper(this.root);
     }
     generateHelper(currentNode) {
@@ -16831,8 +17133,8 @@ class BSP {
             topRightCoord1[1] = centerCoord[1] + offset;
             botLeftCoord2[1] = centerCoord[1] + offset;
         }
-        let node1 = new BSPNode(botLeftCoord1, topRightCoord1, this.maxRoomWidth, this.maxRoomHeight);
-        let node2 = new BSPNode(botLeftCoord2, topRightCoord2, this.maxRoomWidth, this.maxRoomHeight);
+        let node1 = new BSPNode(botLeftCoord1, topRightCoord1, this.maxRoomWidth, this.maxRoomHeight, this.density);
+        let node2 = new BSPNode(botLeftCoord2, topRightCoord2, this.maxRoomWidth, this.maxRoomHeight, this.density);
         currentNode.addChild(node1);
         currentNode.addChild(node2);
         this.generateHelper(node1);
@@ -16866,6 +17168,9 @@ class BSP {
             }
         }
         return [offsetsArrayGround, numGround, offsetsArrayWall, numWall];
+    }
+    getMap() {
+        return this.map;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = BSP;

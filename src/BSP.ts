@@ -8,11 +8,6 @@ function pollRandomPoint(botLeft: number[], topRight: number[]) : number[] {
     return [botLeft[0] + Math.floor(Math.random() * (topRight[0] - botLeft[0])), botLeft[1] + Math.floor(Math.random() * (topRight[1] - botLeft[1]))];
 }
 
-// class Room {
-//   topLeftCoord: number[] = [0, 0];
-//   botRightCoord: number[] = [0, 0];
-// }
-
 class BSPNode {
   leaf: boolean = false;
   room: boolean = false;
@@ -26,8 +21,6 @@ class BSPNode {
   heightRoom: number = 0;
   children: BSPNode[] = [];
   density: number = 0;
-//   allChildren: BSPNode[] = [];
-//   childHasRoom: boolean = false;
 
   constructor(botLeftCd: number[], topRightCd: number[], maxRoomWidth: number,  maxRoomHeight: number, density: number) {
       this.botLeftCoord = botLeftCd;
@@ -43,12 +36,7 @@ class BSPNode {
           return;
       }
       
-    //   if (this.width <= maxRoomWidth || this.height <= maxRoomHeight || Math.random() < .1) {
       if (this.width <= maxRoomWidth || this.height <= maxRoomHeight) {
-        //   let showRoom : number = Math.random();
-        //   if (showRoom >= .25) { //hide some rooms so there is empty space
-            //   this.room = true;
-        //   }
           this.leaf = true;
           this.room = true;
           this.widthRoom = Math.floor(Math.random() * this.width * (1. - density) + this.width * density);
@@ -86,25 +74,11 @@ class BSPNode {
             else rightChildren.push(child.children[j]);
         }
     }
-    // console.log("left: " + leftChildren.length);
-    // console.log("right: " + rightChildren.length);
     let randomLeftChild: BSPNode = leftChildren[Math.floor(Math.random() * leftChildren.length)];
     let randomRightChild: BSPNode = rightChildren[Math.floor(Math.random() * rightChildren.length)];
 
     let randomLeftPoint: number[] = pollRandomPoint(randomLeftChild.botLeftCoordRoom, randomLeftChild.topRightCoordRoom);
     let randomRightPoint: number[] = pollRandomPoint(randomRightChild.botLeftCoordRoom, randomRightChild.topRightCoordRoom);
-    // if (randomLeftPoint[0] == 0 || randomLeftPoint[1] == 0) {
-    //     console.log("sadness");
-    //     console.log(randomLeftChild);
-    //     console.log("left: " + randomLeftChild.botLeftCoordRoom);
-    //     console.log("right: " + randomLeftChild.topRightCoordRoom);
-    // }
-    // if (randomRightPoint[0] == 0 || randomRightPoint[1] == 0) {
-    //     console.log("sadness");
-    //     console.log(randomRightChild);
-    //     console.log("left: " + randomRightChild.botLeftCoordRoom);
-    //     console.log("right: " + randomRightChild.topRightCoordRoom);
-    // }
 
     let horizontalFirst: boolean = Math.random() > .5; //.5
     if (horizontalFirst && randomLeftPoint[0] > randomRightPoint[0] || !horizontalFirst && randomLeftPoint[1] > randomRightPoint[1]) {
@@ -141,10 +115,6 @@ class BSPNode {
             path2topRightCd = [randomRightPoint[0] + 1, randomRightPoint[1] + 1];
         }
     }
-    // console.log("path 1 bottom left corner: " + path1botLeftCd);
-    // console.log("path 1 top right corner: " + path1topRightCd);
-    // console.log("path 2 bottom left corner: " + path2botLeftCd);
-    // console.log("path 2 top right corner: " + path2topRightCd);
     let path1 : BSPNode = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1, this.density);
     let path2 : BSPNode = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1, this.density);
     this.children = [];
@@ -210,9 +180,7 @@ export default class BSP {
 
   generateHelper(currentNode : BSPNode) {
     if (currentNode.isLeaf()) {
-        // if (currentNode.drawRoom()) {
-            this.drawRoom(currentNode.botLeftCoordRoom, currentNode.topRightCoordRoom);
-        // }
+        this.drawRoom(currentNode.botLeftCoordRoom, currentNode.topRightCoordRoom);
         return;
     }
     let splitWidth : boolean = currentNode.width >= currentNode.height;

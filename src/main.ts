@@ -20,13 +20,58 @@ const controls = {
   maxCorridorWidth: 10,
   maxCorridorHeight: 10,
   density: .5,
-  tilemapTheme: 'src/tilemaps/pokemon-tilemap-amp-plains.png',
-  generate: loadScene
+  tilemapTheme: 'src/tilemaps/amp_plains.png',
+  generate: loadScene,
+  randomize: randomizeControls
+};
+
+let tileThemes = {  Amp_Plains: 'src/tilemaps/amp_plains.png',
+                    Apple_Woods: 'src/tilemaps/apple_woods.png',
+                    Beach_Cave: 'src/tilemaps/beach_cave.png',
+                    Bottomless_Sea: 'src/tilemaps/bottomless_sea.png',
+                    Brine_Cave: 'src/tilemaps/brine_cave.png',
+                    Brine_Cave_2: 'src/tilemaps/brine_cave_2.png',
+                    Concealed_Ruins: 'src/tilemaps/concealed_ruins.png',
+                    Craggy_Coast: 'src/tilemaps/craggy_coast.png',
+                    Crystal_Cave: 'src/tilemaps/crystal_cave.png',
+                    Crystal_Cave_2: 'src/tilemaps/crystal_cave_2.png',
+                    Crystal_Cave_3: 'src/tilemaps/crystal_cave_3.png',
+                    Crystal_Crossing: 'src/tilemaps/crystal_crossing.png',
+                    Dark_Crater: 'src/tilemaps/dark_crater.png',
+                    Dark_Hill: 'src/tilemaps/dark_hill.png',
+                    Foggy_Forest: 'src/tilemaps/foggy_forest.png',
+                    Forest_Path: 'src/tilemaps/forest_path.png',
+                    Golden_Chamber: 'src/tilemaps/golden_chamber.png',
+                    Hidden_Highland: 'src/tilemaps/hidden_highland.png',
+                    Hidden_Land: 'src/tilemaps/hidden_land.png',
+                    Hidden_Land_2: 'src/tilemaps/hidden_land_2.png',
+                    Ice_Aegis_Cave: 'src/tilemaps/ice_aegis_cave.png',
+                    Lower_Brine_Cave: 'src/tilemaps/lower_brine_cave.png',
+                    Lush_Prairie: 'src/tilemaps/lush_prairie.png',
+                    Miracle_Sea: 'src/tilemaps/miracle_sea.png',
+                    Mt_Bristle: 'src/tilemaps/mt_bristle.png',
+                    Mt_Horn: 'src/tilemaps/mt_horn.png',
+                    Mt_Travail: 'src/tilemaps/mt_travail.png',
+                    Mystery_Jungle: 'src/tilemaps/mystery_jungle.png',
+                    Sealed_Ruin_2: 'src/tilemaps/sealed_ruin_2.png',
+                    Shimmer_Desert: 'src/tilemaps/shimmer_desert.png',
+                    Side_Path: 'src/tilemaps/side_path.png',
+                    Spacial_Rift: 'src/tilemaps/spacial_rift.png',
+                    Spacial_Rift_2: 'src/tilemaps/spacial_rift_2.png',
+                    Steam_Cave: 'src/tilemaps/steam_cave.png',
+                    Steam_Cave_2: 'src/tilemaps/steam_cave_2.png',
+                    Steel_Aegis_Cave: 'src/tilemaps/steel_aegis_cave.png',
+                    Surrounded_Sea: 'src/tilemaps/surrounded_sea.png',
+                    Temporal_Spire: 'src/tilemaps/temporal_spire.png',
+                    Temporal_Tower: 'src/tilemaps/temporal_tower.png',
+                    Temporal_Tower_2: 'src/tilemaps/temporal_tower_2.png',
+                    Test_Dungeon: 'src/tilemaps/test_dungeon.png',
+                    The_Nightmare: 'src/tilemaps/the_nightmare.png'
 };
 
 // let square: Square;
-let wall: Square;
-let ground: Square;
+// let wall: Square;
+// let ground: Square;
 let screenQuad: ScreenQuad;
 let time: number = 0.0;
 let bsp: BSP;
@@ -44,6 +89,30 @@ let priorityTiles: number[] = [ 2, 4, 6, 8, //edges
                                 1, 3, 7, 9, //corners
                                 10, 11, 12, 13, 14, 15, 16, //thin walls
                                 17, 18, 19, 20, 21,]; //thin walls
+
+function randomizeControls(gl: WebGL2RenderingContext, pretty: boolean) {
+  if (pretty) {
+    controls.totalDungeonWidth = Math.floor(Math.random() * 191 + 10);
+    controls.totalDungeonHeight = Math.floor(Math.random() * 191 + 10);
+    controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth / 3.);
+    controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight / 3.);
+    controls.density = (Math.random() * 11 - 5 + 10) * .05;
+    let tileThemePaths = Object.values(tileThemes);
+    let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
+    controls.tilemapTheme = tileThemePaths[tileThemeInd];
+    loadScene(gl, true);
+  } else {
+    controls.totalDungeonWidth = Math.floor(Math.random() * 201);
+    controls.totalDungeonHeight = Math.floor(Math.random() * 201);
+    controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth);
+    controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight);
+    controls.density = Math.random() * 21 * .05;
+    let tileThemePaths = Object.values(tileThemes);
+    let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
+    controls.tilemapTheme = tileThemePaths[tileThemeInd];
+    loadScene(gl, true);
+  }
+}
 
 //
 // Initialize a texture and load an image.
@@ -79,16 +148,18 @@ function loadTexture(gl: WebGL2RenderingContext, url: string) {
     // WebGL1 has different requirements for power of 2 images
     // vs non power of 2 images so check if the image is a
     // power of 2 in both dimensions.
-    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-       // Yes, it's a power of 2. Generate mips.
-       gl.generateMipmap(gl.TEXTURE_2D);
-    } else {
+    // if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+    //    // Yes, it's a power of 2. Generate mips.
+    //    gl.generateMipmap(gl.TEXTURE_2D);
+    // } else {
        // No, it's not a power of 2. Turn off mips and set
        // wrapping to clamp to edge
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    }
+      // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+      // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    // }
   };
   image.src = url;
 
@@ -112,10 +183,13 @@ function convertToUvCoords(row: number, col: number) {
   //top right
   //top left
 
-  let uvCoords = new Float32Array([widthPixelUnit + col * widthTileUnitWithBound, (row + 1) * heightTileUnitWithBound,
-                                  (col + 1) * widthTileUnitWithBound, (row + 1) * heightTileUnitWithBound,
-                                  (col + 1) * widthTileUnitWithBound, heightPixelUnit + row * heightTileUnitWithBound,
-                                  widthPixelUnit + col * widthTileUnitWithBound, heightPixelUnit + row * heightTileUnitWithBound]);
+  let widthBuffer = widthPixelUnit / 1.;
+  let heightBuffer = heightPixelUnit / 1.;
+
+  let uvCoords = new Float32Array([widthPixelUnit + col * widthTileUnitWithBound + widthBuffer, (row + 1) * heightTileUnitWithBound - heightBuffer,
+                                  (col + 1) * widthTileUnitWithBound - widthBuffer, (row + 1) * heightTileUnitWithBound - heightBuffer,
+                                  (col + 1) * widthTileUnitWithBound - widthBuffer, heightPixelUnit + row * heightTileUnitWithBound + heightBuffer,
+                                  widthPixelUnit + col * widthTileUnitWithBound + widthBuffer, heightPixelUnit + row * heightTileUnitWithBound + heightBuffer]);
 
   // let uvCoords = new Float32Array([widthTileUnit + 0.0,  1.0 / 24.,
   //                                   1.0 / 9.,  1.0 / 24.,
@@ -330,7 +404,7 @@ function findClosestTile(layout : string) : number {
 
 function loadScene(gl: WebGL2RenderingContext, makeNewScene: boolean) {
   const texture = loadTexture(gl, controls.tilemapTheme); //'src/tilemaps/pokemon-tilemap-amp-plains.png');
-  updateTileMap();
+  // updateTileMap();
 
   // Tell WebGL we want to affect texture unit 0
   gl.activeTexture(gl.TEXTURE0);
@@ -356,8 +430,10 @@ function loadScene(gl: WebGL2RenderingContext, makeNewScene: boolean) {
   screenQuad = new ScreenQuad();
   screenQuad.create();
 
-  bsp = new BSP(controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomWidth, controls.maxRoomHeight, controls.density);
-  bsp.generate();
+  if (makeNewScene) {
+    bsp = new BSP(controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomWidth, controls.maxRoomHeight, controls.density);
+    bsp.generate();
+  }
 
   // let [offsetsArrayGround, numGround, offsetsArrayWall, numWall] = bsp.getTiles();
   // let offsetsGround: Float32Array = new Float32Array(offsetsArrayGround);
@@ -437,19 +513,19 @@ function main() {
   }
 
   // Add controls to the gui
-  const gui = new DAT.GUI();
-  gui.add(controls, 'totalDungeonWidth', 0, 200).step(1).name('Dungeon Max Width');
-  gui.add(controls, 'totalDungeonHeight', 0, 200).step(1).name('Dungeon Max Height');
-  gui.add(controls, 'maxRoomWidth', 0, 200).step(1).name('Room Max Width');
-  gui.add(controls, 'maxRoomHeight', 0, 200).step(1).name('Room Max Height');
-  gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width');
-  gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height');
-  gui.add(controls, 'density', 0, 1).step(.05).name('Room Capacity');
-  gui.add(controls, 'tilemapTheme', { Amp_Plains: 'src/tilemaps/pokemon-tilemap-amp-plains.png',
-                                      Apple_Woods: 'Apple',
-                                      Beach_Cave: 'Beach' }).name('Tile Theme');
-  // gui.add(controls, 'generate').name('Generate!');
+  const gui = new DAT.GUI({ autoPlace: true, width: 400 });
+  gui.add(controls, 'totalDungeonWidth', 0, 200).step(1).name('Dungeon Max Width').listen();
+  gui.add(controls, 'totalDungeonHeight', 0, 200).step(1).name('Dungeon Max Height').listen();
+  gui.add(controls, 'maxRoomWidth', 0, 200).step(1).name('Room Max Width').listen();
+  gui.add(controls, 'maxRoomHeight', 0, 200).step(1).name('Room Max Height').listen();
+  gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width').listen();
+  gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height').listen();
+  gui.add(controls, 'density', 0, 1).step(.05).name('Room Capacity').listen();
+  gui.add(controls, 'tilemapTheme', tileThemes).name('Tile Theme').listen();
+  gui.add({generate : controls.generate.bind(this, gl, false)}, 'generate').name('Update Tile Theme!');
   gui.add({generate : controls.generate.bind(this, gl, true)}, 'generate').name('Generate!');
+  gui.add({randomize : controls.randomize.bind(this, gl, false)}, 'randomize').name('Truly Randomize!');
+  gui.add({randomize : controls.randomize.bind(this, gl, true)}, 'randomize').name('Elegantly Randomize!');
 
   // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
   // Later, we can import `gl` from `globals.ts` to access it
@@ -457,6 +533,7 @@ function main() {
 
   //Initial call to set up basic tile map info
   loadTileBasicMaps();
+  updateTileMap();
 
   // Initial call to load scene
   loadScene(gl, true); //TODO: let tilemaps be changed without changing the current scene

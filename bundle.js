@@ -6027,12 +6027,56 @@ const controls = {
     maxCorridorWidth: 10,
     maxCorridorHeight: 10,
     density: .5,
-    tilemapTheme: 'src/tilemaps/pokemon-tilemap-amp-plains.png',
-    generate: loadScene
+    tilemapTheme: 'src/tilemaps/amp_plains.png',
+    generate: loadScene,
+    randomize: randomizeControls
+};
+let tileThemes = { Amp_Plains: 'src/tilemaps/amp_plains.png',
+    Apple_Woods: 'src/tilemaps/apple_woods.png',
+    Beach_Cave: 'src/tilemaps/beach_cave.png',
+    Bottomless_Sea: 'src/tilemaps/bottomless_sea.png',
+    Brine_Cave: 'src/tilemaps/brine_cave.png',
+    Brine_Cave_2: 'src/tilemaps/brine_cave_2.png',
+    Concealed_Ruins: 'src/tilemaps/concealed_ruins.png',
+    Craggy_Coast: 'src/tilemaps/craggy_coast.png',
+    Crystal_Cave: 'src/tilemaps/crystal_cave.png',
+    Crystal_Cave_2: 'src/tilemaps/crystal_cave_2.png',
+    Crystal_Cave_3: 'src/tilemaps/crystal_cave_3.png',
+    Crystal_Crossing: 'src/tilemaps/crystal_crossing.png',
+    Dark_Crater: 'src/tilemaps/dark_crater.png',
+    Dark_Hill: 'src/tilemaps/dark_hill.png',
+    Foggy_Forest: 'src/tilemaps/foggy_forest.png',
+    Forest_Path: 'src/tilemaps/forest_path.png',
+    Golden_Chamber: 'src/tilemaps/golden_chamber.png',
+    Hidden_Highland: 'src/tilemaps/hidden_highland.png',
+    Hidden_Land: 'src/tilemaps/hidden_land.png',
+    Hidden_Land_2: 'src/tilemaps/hidden_land_2.png',
+    Ice_Aegis_Cave: 'src/tilemaps/ice_aegis_cave.png',
+    Lower_Brine_Cave: 'src/tilemaps/lower_brine_cave.png',
+    Lush_Prairie: 'src/tilemaps/lush_prairie.png',
+    Miracle_Sea: 'src/tilemaps/miracle_sea.png',
+    Mt_Bristle: 'src/tilemaps/mt_bristle.png',
+    Mt_Horn: 'src/tilemaps/mt_horn.png',
+    Mt_Travail: 'src/tilemaps/mt_travail.png',
+    Mystery_Jungle: 'src/tilemaps/mystery_jungle.png',
+    Sealed_Ruin_2: 'src/tilemaps/sealed_ruin_2.png',
+    Shimmer_Desert: 'src/tilemaps/shimmer_desert.png',
+    Side_Path: 'src/tilemaps/side_path.png',
+    Spacial_Rift: 'src/tilemaps/spacial_rift.png',
+    Spacial_Rift_2: 'src/tilemaps/spacial_rift_2.png',
+    Steam_Cave: 'src/tilemaps/steam_cave.png',
+    Steam_Cave_2: 'src/tilemaps/steam_cave_2.png',
+    Steel_Aegis_Cave: 'src/tilemaps/steel_aegis_cave.png',
+    Surrounded_Sea: 'src/tilemaps/surrounded_sea.png',
+    Temporal_Spire: 'src/tilemaps/temporal_spire.png',
+    Temporal_Tower: 'src/tilemaps/temporal_tower.png',
+    Temporal_Tower_2: 'src/tilemaps/temporal_tower_2.png',
+    Test_Dungeon: 'src/tilemaps/test_dungeon.png',
+    The_Nightmare: 'src/tilemaps/the_nightmare.png'
 };
 // let square: Square;
-let wall;
-let ground;
+// let wall: Square;
+// let ground: Square;
 let screenQuad;
 let time = 0.0;
 let bsp;
@@ -6049,6 +6093,26 @@ let priorityTiles = [2, 4, 6, 8,
     1, 3, 7, 9,
     10, 11, 12, 13, 14, 15, 16,
     17, 18, 19, 20, 21,]; //thin walls
+function randomizeControls(gl, pretty) {
+    if (pretty) {
+        controls.totalDungeonWidth = Math.floor(Math.random() * 191 + 10);
+        controls.totalDungeonHeight = Math.floor(Math.random() * 191 + 10);
+        controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth / 3.);
+        controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight / 3.);
+        controls.density = (Math.random() * 11 - 5 + 10) * .05;
+    }
+    else {
+        controls.totalDungeonWidth = Math.floor(Math.random() * 201);
+        controls.totalDungeonHeight = Math.floor(Math.random() * 201);
+        controls.maxRoomWidth = Math.floor(Math.random() * controls.totalDungeonWidth);
+        controls.maxRoomHeight = Math.floor(Math.random() * controls.totalDungeonHeight);
+        controls.density = Math.random() * 21 * .05;
+    }
+    let tileThemePaths = Object.keys(tileThemes).map((key) => tileThemes[key]);
+    let tileThemeInd = Math.floor(Math.random() * tileThemePaths.length);
+    controls.tilemapTheme = tileThemePaths[tileThemeInd];
+    loadScene(gl, true);
+}
 //
 // Initialize a texture and load an image.
 // When the image finished loading copy it into the texture.
@@ -6077,17 +6141,18 @@ function loadTexture(gl, url) {
         // WebGL1 has different requirements for power of 2 images
         // vs non power of 2 images so check if the image is a
         // power of 2 in both dimensions.
-        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-            // Yes, it's a power of 2. Generate mips.
-            gl.generateMipmap(gl.TEXTURE_2D);
-        }
-        else {
-            // No, it's not a power of 2. Turn off mips and set
-            // wrapping to clamp to edge
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        }
+        // if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+        //    // Yes, it's a power of 2. Generate mips.
+        //    gl.generateMipmap(gl.TEXTURE_2D);
+        // } else {
+        // No, it's not a power of 2. Turn off mips and set
+        // wrapping to clamp to edge
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        // }
     };
     image.src = url;
     return texture;
@@ -6106,10 +6171,12 @@ function convertToUvCoords(row, col) {
     //bottom right
     //top right
     //top left
-    let uvCoords = new Float32Array([widthPixelUnit + col * widthTileUnitWithBound, (row + 1) * heightTileUnitWithBound,
-        (col + 1) * widthTileUnitWithBound, (row + 1) * heightTileUnitWithBound,
-        (col + 1) * widthTileUnitWithBound, heightPixelUnit + row * heightTileUnitWithBound,
-        widthPixelUnit + col * widthTileUnitWithBound, heightPixelUnit + row * heightTileUnitWithBound]);
+    let widthBuffer = widthPixelUnit / 1.;
+    let heightBuffer = heightPixelUnit / 1.;
+    let uvCoords = new Float32Array([widthPixelUnit + col * widthTileUnitWithBound + widthBuffer, (row + 1) * heightTileUnitWithBound - heightBuffer,
+        (col + 1) * widthTileUnitWithBound - widthBuffer, (row + 1) * heightTileUnitWithBound - heightBuffer,
+        (col + 1) * widthTileUnitWithBound - widthBuffer, heightPixelUnit + row * heightTileUnitWithBound + heightBuffer,
+        widthPixelUnit + col * widthTileUnitWithBound + widthBuffer, heightPixelUnit + row * heightTileUnitWithBound + heightBuffer]);
     // let uvCoords = new Float32Array([widthTileUnit + 0.0,  1.0 / 24.,
     //                                   1.0 / 9.,  1.0 / 24.,
     //                                   1.0 / 9.,  heightTileUnit + 0.0,
@@ -6318,7 +6385,7 @@ function findClosestTile(layout) {
 }
 function loadScene(gl, makeNewScene) {
     const texture = loadTexture(gl, controls.tilemapTheme); //'src/tilemaps/pokemon-tilemap-amp-plains.png');
-    updateTileMap();
+    // updateTileMap();
     // Tell WebGL we want to affect texture unit 0
     gl.activeTexture(gl.TEXTURE0);
     // Bind the texture to texture unit 0
@@ -6336,8 +6403,10 @@ function loadScene(gl, makeNewScene) {
     // ground.createWithUVs(uvCoordsGround);
     screenQuad = new __WEBPACK_IMPORTED_MODULE_3__geometry_ScreenQuad__["a" /* default */]();
     screenQuad.create();
-    bsp = new __WEBPACK_IMPORTED_MODULE_8__BSP__["a" /* default */](controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomWidth, controls.maxRoomHeight, controls.density);
-    bsp.generate();
+    if (makeNewScene) {
+        bsp = new __WEBPACK_IMPORTED_MODULE_8__BSP__["a" /* default */](controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomWidth, controls.maxRoomHeight, controls.density);
+        bsp.generate();
+    }
     // let [offsetsArrayGround, numGround, offsetsArrayWall, numWall] = bsp.getTiles();
     // let offsetsGround: Float32Array = new Float32Array(offsetsArrayGround);
     // let offsetsWall: Float32Array = new Float32Array(offsetsArrayWall);
@@ -6413,24 +6482,25 @@ function main() {
         alert('WebGL 2 not supported!');
     }
     // Add controls to the gui
-    const gui = new __WEBPACK_IMPORTED_MODULE_1_dat_gui__["GUI"]();
-    gui.add(controls, 'totalDungeonWidth', 0, 200).step(1).name('Dungeon Max Width');
-    gui.add(controls, 'totalDungeonHeight', 0, 200).step(1).name('Dungeon Max Height');
-    gui.add(controls, 'maxRoomWidth', 0, 200).step(1).name('Room Max Width');
-    gui.add(controls, 'maxRoomHeight', 0, 200).step(1).name('Room Max Height');
-    gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width');
-    gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height');
-    gui.add(controls, 'density', 0, 1).step(.05).name('Room Capacity');
-    gui.add(controls, 'tilemapTheme', { Amp_Plains: 'src/tilemaps/pokemon-tilemap-amp-plains.png',
-        Apple_Woods: 'Apple',
-        Beach_Cave: 'Beach' }).name('Tile Theme');
-    // gui.add(controls, 'generate').name('Generate!');
+    const gui = new __WEBPACK_IMPORTED_MODULE_1_dat_gui__["GUI"]({ autoPlace: true, width: 400 });
+    gui.add(controls, 'totalDungeonWidth', 0, 200).step(1).name('Dungeon Max Width').listen();
+    gui.add(controls, 'totalDungeonHeight', 0, 200).step(1).name('Dungeon Max Height').listen();
+    gui.add(controls, 'maxRoomWidth', 0, 200).step(1).name('Room Max Width').listen();
+    gui.add(controls, 'maxRoomHeight', 0, 200).step(1).name('Room Max Height').listen();
+    gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width').listen();
+    gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height').listen();
+    gui.add(controls, 'density', 0, 1).step(.05).name('Room Capacity').listen();
+    gui.add(controls, 'tilemapTheme', tileThemes).name('Tile Theme').listen();
+    gui.add({ generate: controls.generate.bind(this, gl, false) }, 'generate').name('Update Tile Theme!');
     gui.add({ generate: controls.generate.bind(this, gl, true) }, 'generate').name('Generate!');
+    gui.add({ randomize: controls.randomize.bind(this, gl, false) }, 'randomize').name('Truly Randomize!');
+    gui.add({ randomize: controls.randomize.bind(this, gl, true) }, 'randomize').name('Elegantly Randomize!');
     // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
     // Later, we can import `gl` from `globals.ts` to access it
     Object(__WEBPACK_IMPORTED_MODULE_6__globals__["b" /* setGL */])(gl);
     //Initial call to set up basic tile map info
     loadTileBasicMaps();
+    updateTileMap();
     // Initial call to load scene
     loadScene(gl, true); //TODO: let tilemaps be changed without changing the current scene
     let center = bsp.getCenterCoords();
@@ -16925,13 +16995,7 @@ function center(botLeft, topRight) {
 function pollRandomPoint(botLeft, topRight) {
     return [botLeft[0] + Math.floor(Math.random() * (topRight[0] - botLeft[0])), botLeft[1] + Math.floor(Math.random() * (topRight[1] - botLeft[1]))];
 }
-// class Room {
-//   topLeftCoord: number[] = [0, 0];
-//   botRightCoord: number[] = [0, 0];
-// }
 class BSPNode {
-    //   allChildren: BSPNode[] = [];
-    //   childHasRoom: boolean = false;
     constructor(botLeftCd, topRightCd, maxRoomWidth, maxRoomHeight, density) {
         this.leaf = false;
         this.room = false;
@@ -16956,12 +17020,7 @@ class BSPNode {
             this.topRightCoordRoom = this.topRightCoord;
             return;
         }
-        //   if (this.width <= maxRoomWidth || this.height <= maxRoomHeight || Math.random() < .1) {
         if (this.width <= maxRoomWidth || this.height <= maxRoomHeight) {
-            //   let showRoom : number = Math.random();
-            //   if (showRoom >= .25) { //hide some rooms so there is empty space
-            //   this.room = true;
-            //   }
             this.leaf = true;
             this.room = true;
             this.widthRoom = Math.floor(Math.random() * this.width * (1. - density) + this.width * density);
@@ -16999,24 +17058,10 @@ class BSPNode {
                     rightChildren.push(child.children[j]);
             }
         }
-        // console.log("left: " + leftChildren.length);
-        // console.log("right: " + rightChildren.length);
         let randomLeftChild = leftChildren[Math.floor(Math.random() * leftChildren.length)];
         let randomRightChild = rightChildren[Math.floor(Math.random() * rightChildren.length)];
         let randomLeftPoint = pollRandomPoint(randomLeftChild.botLeftCoordRoom, randomLeftChild.topRightCoordRoom);
         let randomRightPoint = pollRandomPoint(randomRightChild.botLeftCoordRoom, randomRightChild.topRightCoordRoom);
-        // if (randomLeftPoint[0] == 0 || randomLeftPoint[1] == 0) {
-        //     console.log("sadness");
-        //     console.log(randomLeftChild);
-        //     console.log("left: " + randomLeftChild.botLeftCoordRoom);
-        //     console.log("right: " + randomLeftChild.topRightCoordRoom);
-        // }
-        // if (randomRightPoint[0] == 0 || randomRightPoint[1] == 0) {
-        //     console.log("sadness");
-        //     console.log(randomRightChild);
-        //     console.log("left: " + randomRightChild.botLeftCoordRoom);
-        //     console.log("right: " + randomRightChild.topRightCoordRoom);
-        // }
         let horizontalFirst = Math.random() > .5; //.5
         if (horizontalFirst && randomLeftPoint[0] > randomRightPoint[0] || !horizontalFirst && randomLeftPoint[1] > randomRightPoint[1]) {
             let temp = randomLeftPoint;
@@ -17052,10 +17097,6 @@ class BSPNode {
                 path2topRightCd = [randomRightPoint[0] + 1, randomRightPoint[1] + 1];
             }
         }
-        // console.log("path 1 bottom left corner: " + path1botLeftCd);
-        // console.log("path 1 top right corner: " + path1topRightCd);
-        // console.log("path 2 bottom left corner: " + path2botLeftCd);
-        // console.log("path 2 top right corner: " + path2topRightCd);
         let path1 = new BSPNode(path1botLeftCd, path1topRightCd, -1, -1, this.density);
         let path2 = new BSPNode(path2botLeftCd, path2topRightCd, -1, -1, this.density);
         this.children = [];
@@ -17112,9 +17153,7 @@ class BSP {
     }
     generateHelper(currentNode) {
         if (currentNode.isLeaf()) {
-            // if (currentNode.drawRoom()) {
             this.drawRoom(currentNode.botLeftCoordRoom, currentNode.topRightCoordRoom);
-            // }
             return;
         }
         let splitWidth = currentNode.width >= currentNode.height;

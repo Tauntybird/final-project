@@ -3,6 +3,7 @@
 
 ### View Project
 https://tauntybird.github.io/final-project/
+Note: right click and drag to pan, scroll to zoom in/out. The map starts out really close to the camera; I suggest zooming out a bit!
 
 ### Design Doc
 
@@ -52,7 +53,7 @@ https://tauntybird.github.io/final-project/
 - Added option to pick between different tile maps (hand stitched the tile maps together in Photoshop to the same dimensions :'D)
 - Added randomizer options in sliders
 - Cleaned up code
-- Overall the project went well! I was originally going to do wave function collapse but got frustrated by the lack of good, readable, more modern pokemon tile sheets (probably too impatient at the start there). The pokemon dungeon tilesheets were good so I went with that instead. I pivoted to using BSP algorithm because looking at the pokemon mystery dungeon maps, I feel like they were better mimicked with that algoirhtm rather than WFC. I accomplished most of my goals with the basic generator and am happy with the amount of user input there is. If I had more time I would like to add even more sliders, or make it playable, or also implement WFC as another generation option. But I'm pretty happy with the final result as it is now.
+- Overall the project went well! I was originally going to do wave function collapse but got frustrated by the lack of good, readable, more modern pokemon tile sheets (probably too impatient at the start there). The pokemon dungeon tilesheets were good so I went with that instead. I pivoted to using BSP algorithm because looking at the pokemon mystery dungeon maps, I feel like they were better mimicked with that algorithm rather than WFC. I accomplished most of my goals with the basic generator and am happy with the amount of user input there is. If I had more time I would like to add even more sliders, or make it playable, or also implement WFC as another generation option. But I'm pretty happy with the final result as it is now.
 
 #### Tile Sheet Credits:
 - Sprites are from Pokemon Mystery Dungeon: Explorers of Time/Darkness. Copyright © 2008 by Nintendo, The Pokémon Company, Spike Chunsoft

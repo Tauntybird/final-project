@@ -2,8 +2,8 @@
 
 
 ### View Project
-https://tauntybird.github.io/final-project/
-Note: right click and drag to pan, scroll to zoom in/out. The map starts out really close to the camera; I suggest zooming out a bit!
+- https://tauntybird.github.io/final-project/
+- Note: right click and drag to pan, scroll to zoom in/out. The map starts out really close to the camera; I suggest zooming out a bit!
 
 ### Design Doc
 

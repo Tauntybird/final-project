@@ -17,8 +17,8 @@ const controls = {
   totalDungeonHeight: 75,
   maxRoomWidth: 25,
   maxRoomHeight: 25,
-  maxCorridorWidth: 10,
-  maxCorridorHeight: 10,
+  // maxCorridorWidth: 10,
+  // maxCorridorHeight: 10,
   density: .5,
   tilemapTheme: 'src/tilemaps/amp_plains.png',
   generate: loadScene,
@@ -295,7 +295,7 @@ function loadTileBasicMaps() {
     ["000001111", 9],
   ]);
   for (let key of layoutToNumber.keys()) {
-    let invertedKey : string = invertLayout(key); //(' ' + key).slice(1)
+    let invertedKey : string = invertLayout(key);
     if (layoutToNumber.has(invertedKey)) continue;
     layoutToNumber.set(invertedKey, Number(layoutToNumber.get(key) + 47));
   }
@@ -377,7 +377,6 @@ function findLayoutDifference(layout1 : string, layout2: string) : number {
 }
 
 function findClosestTile(layout : string) : number {
-  // let curInd : number = priorityTiles.indexOf(layoutToNumber.get(layout));
   let lowDiff : number = 10;
   let tileNumber : number = -1;
   let curInd : number = -2;
@@ -430,7 +429,7 @@ function loadScene(gl: WebGL2RenderingContext, makeNewScene: boolean) {
   screenQuad.create();
 
   if (makeNewScene) {
-    bsp = new BSP(controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomWidth, controls.maxRoomHeight, controls.density);
+    bsp = new BSP(controls.totalDungeonWidth, controls.totalDungeonHeight, controls.maxRoomHeight, controls.maxRoomWidth, controls.density);
     bsp.generate();
   }
 
@@ -458,20 +457,10 @@ function loadScene(gl: WebGL2RenderingContext, makeNewScene: boolean) {
         }
       }
       let numTile : number = layoutToNumber.get(layout);
-      // if (layout == '111000000')
-      // {
-      //   console.log(numTile);
-      // }
       if (numTile == undefined) {
-        // console.log(numTile + " " + layout);
         let closestTileNumber : number = findClosestTile(layout);
-        // layoutToNumber.set(layout, closestTileNumber);
         numTile = closestTileNumber;
       }
-      // if (numTile > 94) {
-        // console.log(numTile + " " + layout);
-        // console.log(layout);
-      // }
       if (!numberToOffsets.has(numTile)) numberToOffsets.set(numTile, []);
       let offsetsArray : number[] = numberToOffsets.get(numTile);
       offsetsArray.push(i);
@@ -486,8 +475,6 @@ function loadScene(gl: WebGL2RenderingContext, makeNewScene: boolean) {
 
   for (let key of numberToOffsets.keys()) {
     if (key == undefined) continue;
-    // console.log(key);
-    // console.log(numberToOffsets.get(key))
     let sq : Square = coordsToSquare.get(numberToCoords.get(key));
     usedSquares.push(sq);
     sq.setInstanceVBOs(new Float32Array(numberToOffsets.get(key)));
@@ -517,8 +504,8 @@ function main() {
   gui.add(controls, 'totalDungeonHeight', 0, 200).step(1).name('Dungeon Max Height').listen();
   gui.add(controls, 'maxRoomWidth', 0, 200).step(1).name('Room Max Width').listen();
   gui.add(controls, 'maxRoomHeight', 0, 200).step(1).name('Room Max Height').listen();
-  gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width').listen();
-  gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height').listen();
+  // gui.add(controls, 'maxCorridorWidth', 0, 200).step(1).name('Corridor Max Width').listen();
+  // gui.add(controls, 'maxCorridorHeight', 0, 200).step(1).name('Corridor Max Height').listen();
   gui.add(controls, 'density', 0, 1).step(.05).name('Room Capacity').listen();
   gui.add(controls, 'tilemapTheme', tileThemes).name('Tile Theme').listen();
   gui.add({generate : controls.generate.bind(this, gl, false)}, 'generate').name('Update Tile Theme!');

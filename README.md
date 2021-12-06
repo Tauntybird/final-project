@@ -3,25 +3,24 @@
 ### Design Doc
 
 #### Introduction
-- Lots of games use tilemaps to create their environments. One of the most notable series that heavily use this technique is Pokemon, particularly their older GBA and DS games such as Pokemon Red, Pokemon Pearl, and even the Pokemon Mystery Dungeon series. This art style is very modular and can be reconfigured into an infinite variety of town and wilderness layouts for players to experience.
+- Lots of games use tilemaps to create their environments. One of the most notable series that heavily use this technique is Pokemon, particularly their older GBA and DS games such as Pokemon Red, Pokemon Pearl, and the Pokemon Mystery Dungeon series. This art style is very modular and can be reconfigured into an infinite variety of town/wilderness/dungeon layouts for players to experience.
 
 #### Goal
-- I want to create a procedural pokemon town/environment/dungeon generator where given some user input parameters (maybe type of terrain/biome, number of buildings, and other preferences) a user can generate a unique pokemon map that one could imagine exploring in a 2d pokemon game.
+- I want to create a procedural pokemon dungeon generator where given some user input parameters (maybe type of terrain/biome, size of rooms, and other preferences) a user can generate a unique pokemon dungeon map that one could imagine exploring in a 2d pokemon game.
 
 #### Inspiration/reference:
-- ![image](https://user-images.githubusercontent.com/43301118/141887329-812409d5-3d9c-4ca0-84eb-fd5e0ef216a5.png)
+- ![image](http://www.psypokes.com/dungeon/dungeon/layout1.png)
+- ![image](http://www.psypokes.com/dungeon/dungeon/layout2.png)
 
 #### Specification (Main features):
-- User input parameters (help determine the final result of the generator)
-- Wave function collapse based procedural generator
-- Lots of pokemon tilemap assets
-- Maybe an interactive mode where users can place assets of their choosing and the wave function collapse finishes based on their placed assets?
+- User input dungeon generation related parameters
+- Lots of pokemon tilemap asset themes to choose from
+- Binary Space Partitioning (BSP) based procedural generator
 
 #### Techniques:
-- I plan to use a form of wave function collapse to generate a map given assets and their constraints (and perhaps some user placed or preferred contraints)
-- https://robertheaton.com/2018/12/17/wavefunction-collapse-algorithm/
-- https://www.procjam.com/tutorials/wfc/
-- https://www.youtube.com/watch?v=2SuvO4Gi7uY
+- I plan to use a form of BSP to generate a map given assets and their constraints
+- http://pcgbook.com/wp-content/uploads/chapter03.pdf
+- https://www.youtube.com/watch?v=TlLIOgWYVpI
 
 #### Design:
 - ![image](https://user-images.githubusercontent.com/43301118/141889983-b96937c9-d68c-4e77-a711-ed9ee3b73804.png)
@@ -33,5 +32,12 @@
 - By Final Submission (12/6): Keep polishing, add NPCs and other details (items, pokemon) if you have time
 
 #### Milestone 2:
-- Added UV texturing, able to read tiles from a standardized tile sheet format. Only using two basic tiles for testing purposes this week, will prettify it next milestone.
-- Coded basic procedural generator first using BSP to generate rooms and connecting them with corridors afterwards.
+- Added UV texturing, able to read tiles from a standardized tile sheet format. Only using two basic tiles for testing purposes this week, will prettify it next milestone
+- Coded basic procedural generator first using BSP to generate rooms and connecting them with corridors afterwards
+
+#### Milestone 3:
+- Mapped proper tiles to the layout of the dungeon
+- Added sliders for dungeon generation
+- Added option to pick between different tile maps
+- Added randomizer options
+- "Fixed" bright sprite borders from showing (moved all the UV coordinates in by ~1 px)

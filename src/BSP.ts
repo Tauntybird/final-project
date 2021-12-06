@@ -80,7 +80,7 @@ class BSPNode {
     let randomLeftPoint: number[] = pollRandomPoint(randomLeftChild.botLeftCoordRoom, randomLeftChild.topRightCoordRoom);
     let randomRightPoint: number[] = pollRandomPoint(randomRightChild.botLeftCoordRoom, randomRightChild.topRightCoordRoom);
 
-    let horizontalFirst: boolean = Math.random() > .5; //.5
+    let horizontalFirst: boolean = Math.random() > .5;
     if (horizontalFirst && randomLeftPoint[0] > randomRightPoint[0] || !horizontalFirst && randomLeftPoint[1] > randomRightPoint[1]) {
         let temp: number[] = randomLeftPoint;
         randomLeftPoint = randomRightPoint;
